@@ -27,21 +27,36 @@ client.connect((err) => {
     .db("volunteerNetwork")
     .collection("volunteer");
 
-  app.post("/addEvents", async (req, res) => {
+  // add Events
+  app.post("/addEvent", async (req, res) => {
     console.log(req.body);
     const result = await EventsCollection.insertOne(req.body);
-    res.send(result);
     console.log(result);
   });
 
   // get search events
-  app.get("/eventsSearch", async (req, res) => {
-    const searchResult = await EventsCollection.find({
+  app.get("/searchEvent", async (req, res) => {
+    const result = await EventsCollection.find({
       title: { $regex: req.query.search },
     }).toArray();
-    res.send(searchResult);
+    res.send(result);
+    console.log(result);
   });
 
+  // add volunteer
+  app.post("/addVolunteer", async (req, res) => {
+    console.log(req.body);
+    const result = await volunteerCollection.insertOne(req.body);
+    res.send(result);
+  });
+
+  // get all volunteer
+
+  app.get("/allVolunteer", async (req, res) => {
+    const result = await volunteerCollection.find({}).toArray();
+    res.send(result);
+    console.log(result);
+  });
   // get all events
 
   app.get("/allEvents", async (req, res) => {
@@ -49,21 +64,28 @@ client.connect((err) => {
     res.send(result);
   });
 
-  // delete servers
+  // delete event
+
+  app.delete("/deleteEvent/:id", async (req, res) => {
+    console.log(req.params.id);
+    const result = await EventsCollection.deleteOne({
+      _id: ObjectId(req.params.id),
+    });
+    res.send(result);
+  });
+
+  // my events
+
+  app.get("/myEvents/:email", async (req, res) => {
+    const result = await EventsCollection.find({
+      email: req.params.email,
+    }).toArray();
+    res.send(result);
+  });
 
   // add addVolunteer
 
-  app.post("/addVolunteer", async (req, res) => {
-    const result = await volunteerCollection.insertOne(req.body);
-    res.send(result);
-    console.log(result);
-  });
-
   // get all volunteer
-  app.get("/allVolunteer", async (req, res) => {
-    const result = await volunteerCollection.find({}).toArray();
-    res.send(result);
-  });
 });
 
 app.listen(process.env.PORT || port);
